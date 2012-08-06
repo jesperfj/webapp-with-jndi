@@ -1,7 +1,10 @@
 package org.example;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -15,17 +18,23 @@ import javax.sql.DataSource;
 public class HelloServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
+	
+	private DataSource ds;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		try {
 			InitialContext cxt = new InitialContext();
-			DataSource ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/default");
+			ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/default");
 			if (ds == null) {
 				throw new ServletException("Data source not found!");
 			}
-			ds.getConnection();
+			// testing connection
+			Connection conn = ds.getConnection();
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT * FROM user");
+			config.getServletContext().log("SQL Connection Test: "+rs.next());
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
